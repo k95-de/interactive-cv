@@ -42,7 +42,7 @@ window.CV = {
   stations: [
     {
       kind: "edu", gate: "start", mode: "iso", s: 0.105, t: 0.030,
-      years: "2013–15",
+      years: "2013–15", dur: { en: "2013 – Summer 2015 · 4 semesters", de: "2013 – Sommer 2015 · 4 Semester" },
       org: { en: "Bachelor's begins", de: "Bachelor beginnt" },
       place: { en: "Middle East Technical University · Northern Cyprus Campus",
                de: "Middle East Technical University · Northern-Cyprus-Campus" },
@@ -50,14 +50,14 @@ window.CV = {
     },
     {
       kind: "edu", mode: "iso", s: 0.158, t: 0.090,
-      years: "2015–18",
+      years: "2015–18", dur: { en: "2015 – 2018 · 3 yrs", de: "2015 – 2018 · 3 Jahre" },
       org: { en: "Transfer to Alfaisal", de: "Wechsel zur Alfaisal" },
       place: { en: "Alfaisal University · Riyadh", de: "Alfaisal University · Riad" },
       role: { en: "Mechanical Engineering continues", de: "Maschinenbau geht weiter" }
     },
     {
       kind: "job", mode: "aero", img: "assets/jobs/aero.webp", s: 0.211, t: 0.150,
-      years: "2016–18",
+      years: "2016–18", dur: { en: "Jun 2016 – Jun 2018 · 2 yrs", de: "Juni 2016 – Juni 2018 · 2 Jahre" },
       org: "Shell Eco Marathon Asia",
       place: { en: "Singapore", de: "Singapur" },
       role: { en: "CFRP Design & Manufacturing Student",
@@ -71,7 +71,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "mold", img: "assets/jobs/mold.webp", s: 0.264, t: 0.210,
-      years: "2017–18",
+      years: "2017–18", dur: { en: "Jul 2017 – Jan 2018 · 7 mos", de: "Juli 2017 – Jan. 2018 · 7 Monate" },
       org: "Alfanar Electric",
       place: { en: "Riyadh, Saudi Arabia", de: "Riad, Saudi-Arabien" },
       role: { en: "Plastic Mould Design & Manufacturing Student",
@@ -100,7 +100,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "battery", img: "assets/jobs/battery.webp", s: 0.423, t: 0.390,
-      years: "2020",
+      years: "2020", dur: { en: "Jan 2020 – Aug 2020 · 8 mos", de: "Jan. 2020 – Aug. 2020 · 8 Monate" },
       org: "A123 Systems",
       place: { en: "Stuttgart, Germany", de: "Stuttgart, Deutschland" },
       role: { en: "Engineering Development & Management Student",
@@ -114,7 +114,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "stress", img: "assets/jobs/stress.webp", s: 0.476, t: 0.450,
-      years: "2020",
+      years: "2020", dur: { en: "Mar 2020 – Aug 2020 · 6 mos", de: "März 2020 – Aug. 2020 · 6 Monate" },
       org: "Esslingen Rennstall",
       place: { en: "Esslingen, Germany", de: "Esslingen, Deutschland" },
       role: { en: "CFRP Monocoque Structure — Simulation Member",
@@ -128,7 +128,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "emotor", img: "assets/jobs/emotor.webp", s: 0.529, t: 0.510,
-      years: "2020–21",
+      years: "2020–21", dur: { en: "Oct 2020 – Mar 2021 · 6 mos", de: "Okt. 2020 – März 2021 · 6 Monate" },
       org: "MAN Truck & Bus",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
       role: { en: "1D Simulation Student — E-Motor Cooling",
@@ -149,7 +149,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "flux", img: "assets/jobs/flux.webp", s: 0.635, t: 0.630,
-      years: "2021–22",
+      years: "2021–22", dur: { en: "Dec 2021 – May 2022 · 6 mos", de: "Dez. 2021 – Mai 2022 · 6 Monate" },
       org: "TRATON R&D · MAN Truck & Bus",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
       role: { en: "1D / 2D Simulation Engineer — E-Motor Cooling",
@@ -163,7 +163,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "network", img: "assets/jobs/bus.webp", s: 0.688, t: 0.690,
-      years: "2022–25",
+      years: "2022–25", dur: { en: "May 2022 – Apr 2025 · 3 yrs", de: "Mai 2022 – Apr. 2025 · 3 Jahre" },
       org: "MAN Truck & Bus",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
       role: { en: "1D Simulation Engineer — Vehicle Cooling Systems",
@@ -177,7 +177,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "network", img: "assets/jobs/network.webp", s: 0.741, t: 0.750,
-      years: "2025–26",
+      years: "2025–26", dur: { en: "Apr 2025 – Jan 2026 · 10 mos", de: "Apr. 2025 – Jan. 2026 · 10 Monate" },
       org: "TRATON R&D Germany",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
       role: { en: "1D Simulation Expert — Vehicle Cooling Systems",
@@ -190,19 +190,17 @@ window.CV = {
       }
     },
     {
-      kind: "venture", mode: "venture", img: "assets/jobs/venture.webp", s: 0.794, t: 0.810,
-      years: "2026",
-      org: "AKM Engineering Solutions",
-      place: { en: "Co-founder · ~6 months", de: "Mitgründer · ~6 Monate" },
-      role: { en: "Co-founder — sales & business administration",
-              de: "Mitgründer — Vertrieb & Unternehmensverwaltung" },
+      kind: "edu", mode: "training", img: "assets/jobs/ai.webp", s: 0.794, t: 0.810,
+      years: "2026", dur: { en: "2026 · 6 mos", de: "2026 · 6 Monate" },
+      org: { en: "Study & growth", de: "Studium & Weiterentwicklung" },
+      place: { en: "Self-study & continuous improvement", de: "Selbststudium & kontinuierliche Verbesserung" },
+      role: { en: "AI · Project Management · Sales Operations",
+              de: "KI · Projektmanagement · Sales Operations" },
       bullets: {
-        en: ["Co-founded an engineering-services company for press tooling and industrial equipment.",
-             "Owned the commercial side — sales, quotations and client outreach across several markets.",
-             "Handled company registration and tax matters end to end."],
-        de: ["Ein Engineering-Dienstleistungsunternehmen für Presswerkzeuge und Industrieausrüstung mitgegründet.",
-             "Die kommerzielle Seite verantwortet — Vertrieb, Angebote und Kundenakquise in mehreren Märkten.",
-             "Firmenregistrierung und Steuerangelegenheiten vollständig abgewickelt."]
+        en: ["Deepened practical AI skills — modern tools, workflows and automation.",
+             "Sharpened project-management and sales-operations fundamentals for the move into technology sales."],
+        de: ["Praktische KI-Kompetenzen vertieft — moderne Tools, Workflows und Automatisierung.",
+             "Grundlagen in Projektmanagement und Sales Operations für den Wechsel in den Technologievertrieb geschärft."]
       }
     },
     {

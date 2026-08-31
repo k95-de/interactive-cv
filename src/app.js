@@ -462,6 +462,7 @@ CV.stations.forEach((st, i) => {
       <div class="st-card">
         <div class="st-kick"></div>
         <div class="st-years"></div>
+        <div class="st-dur"></div>
         <h2 class="st-org"></h2>
         <div class="st-role"></div>
         <div class="st-place"></div>
@@ -518,6 +519,9 @@ function render() {
     else { jobNo++;                  kick = String(jobNo).padStart(2, "0") + " — " + pick(st.role); }
     el.querySelector(".st-kick").textContent = kick;
     el.querySelector(".st-years").textContent = pick(st.years);
+    const durEl = el.querySelector(".st-dur");
+    durEl.textContent = st.dur ? pick(st.dur) : "";
+    durEl.style.display = st.dur ? "" : "none";
     el.querySelector(".st-org").textContent = pick(st.org);
     el.querySelector(".st-role").textContent = pick(st.role);
     el.querySelector(".st-place").textContent = pick(st.place);
