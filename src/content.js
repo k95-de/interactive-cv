@@ -177,7 +177,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "network", img: "assets/jobs/network.webp", s: 0.741, t: 0.750,
-      years: "2025–26", dur: { en: "Apr 2025 – Jan 2026 · 10 mos", de: "Apr. 2025 – Jan. 2026 · 10 Monate" },
+      years: "2025–26", dur: { en: "Apr 2025 – Feb 2026 · 11 mos", de: "Apr. 2025 – Feb. 2026 · 11 Monate" },
       org: "TRATON R&D Germany",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
       role: { en: "1D Simulation Expert — Vehicle Cooling Systems",
@@ -192,7 +192,7 @@ window.CV = {
     {
       kind: "edu", mode: "training", img: "assets/jobs/ai.webp", s: 0.794, t: 0.810,
       years: "2026", dur: { en: "2026 · 6 mos", de: "2026 · 6 Monate" },
-      org: { en: "Study & growth", de: "Studium & Weiterentwicklung" },
+      org: { en: "Study & Growth", de: "Studium & Weiterentwicklung" },
       place: { en: "Self-study & continuous improvement", de: "Selbststudium & kontinuierliche Verbesserung" },
       role: { en: "AI · Project Management · Sales Operations",
               de: "KI · Projektmanagement · Sales Operations" },
