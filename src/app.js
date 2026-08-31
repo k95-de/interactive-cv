@@ -561,11 +561,11 @@ setLang((() => { try { return localStorage.getItem("flow_lang"); } catch (e) { r
    ONE source of truth: target = scrollY / max, read every frame in the loop.
    Every fade (hero, cards, outro) is computed from that same number — no
    separate trigger system that can drift out of sync. */
-document.getElementById("scroll-space").style.height = "920vh";
+document.getElementById("scroll-space").style.height = "1250vh";
 
 let lenis = null;
 if (!reduced) {
-  lenis = new Lenis({ lerp: 0.10, wheelMultiplier: 1.15 });
+  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.85 });
   gsap.ticker.add((t) => lenis.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
 }
