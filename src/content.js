@@ -142,7 +142,7 @@ window.CV = {
     },
     {
       kind: "edu", gate: "done", mode: "iso", s: 0.582, t: 0.570,
-      years: "2022",
+      years: "2021",
       org: { en: "M.Eng. Mechanical & Automotive Engineering", de: "M.Eng. Mechanical & Automotive Engineering" },
       place: { en: "Esslingen University · Germany", de: "Hochschule Esslingen · Deutschland" },
       role: { en: "Master's completed", de: "Master abgeschlossen" }
@@ -150,7 +150,7 @@ window.CV = {
     {
       kind: "job", mode: "flux", img: "assets/jobs/flux.webp", s: 0.635, t: 0.630,
       years: "2021–22", dur: { en: "Dec 2021 – May 2022 · 6 mos", de: "Dez. 2021 – Mai 2022 · 6 Monate" },
-      org: "TRATON R&D · MAN Truck & Bus",
+      org: "MAN Truck & Bus",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
       role: { en: "1D / 2D Simulation Engineer — E-Motor Cooling",
               de: "1D-/2D-Simulationsingenieur — E-Motor-Kühlung" },
