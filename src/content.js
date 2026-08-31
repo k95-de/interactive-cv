@@ -191,7 +191,7 @@ window.CV = {
     },
     {
       kind: "edu", mode: "training", img: "assets/jobs/ai.webp", s: 0.794, t: 0.810,
-      years: "2026", dur: { en: "2026 · 6 mos", de: "2026 · 6 Monate" },
+      years: "2026", dur: { en: "Mar 2026 – Aug 2026 · 6 mos", de: "März 2026 – Aug. 2026 · 6 Monate" },
       org: { en: "Study & Growth", de: "Studium & Weiterentwicklung" },
       place: { en: "Self-study & continuous improvement", de: "Selbststudium & kontinuierliche Verbesserung" },
       role: { en: "AI · Project Management · Sales Operations",
@@ -205,7 +205,7 @@ window.CV = {
     },
     {
       kind: "training", gate: "train", mode: "training", s: 0.847, t: 0.870,
-      years: "2026",
+      years: "2026", dur: { en: "Sep 2026 – Dec 2026 · 4 mos", de: "Sep. 2026 – Dez. 2026 · 4 Monate" },
       org: "Habmann",
       place: { en: "Professional training", de: "Weiterbildung" },
       role: { en: "Tech sales & consulting", de: "Technischer Vertrieb & Beratung" }
