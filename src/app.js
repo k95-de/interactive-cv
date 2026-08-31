@@ -90,6 +90,7 @@ const wallMat = new THREE.ShaderMaterial({
     cBlue: { value: COL.blue }, cBright: { value: COL.bright }, cCyan: { value: COL.cyan },
     cBg: { value: COL.bg },
     uFadeNear: { value: 10.0 }, uFadeFar: { value: 150.0 },
+    uDim: { value: (matchMedia("(max-width: 720px)").matches ? 0.72 : 1.0) },
     /* gates tint the tunnel itself: xyz = colour, w = position along pipe */
     uGates: { value: buildGateUniforms() }
   },
@@ -106,7 +107,7 @@ const wallMat = new THREE.ShaderMaterial({
   fragmentShader: `
     precision highp float;
     varying vec2 vUv; varying float vDist; varying vec3 vN; varying vec3 vView;
-    uniform float uFlow, uSpeed, uFadeNear, uFadeFar;
+    uniform float uFlow, uSpeed, uFadeNear, uFadeFar, uDim;
     uniform vec3 cDeep, cIndigo, cBlue, cBright, cCyan, cBg;
     uniform vec4 uGates[5];
     float band(float x, float w){ float d = abs(fract(x) - 0.5); return smoothstep(w, 0.0, d - (0.5 - w)); }
@@ -144,7 +145,7 @@ const wallMat = new THREE.ShaderMaterial({
       float fade = 1.0 - smoothstep(uFadeNear, uFadeFar, vDist);
       col = mix(cBg, col, fade);
       col *= smoothstep(2.0, 7.0, vDist);                     // don't blow out when wall is right on the lens
-      gl_FragColor = vec4(col, 1.0);
+      gl_FragColor = vec4(col * uDim, 1.0);
     }`
 });
 const wall = new THREE.Mesh(new THREE.TubeGeometry(curve, 460, 3.4, 22, false), wallMat);
@@ -158,6 +159,7 @@ const coolMat = new THREE.ShaderMaterial({
     uFlow: { value: 0 }, uSpeed: { value: 0 },
     cBlue: { value: COL.blue }, cCyan: { value: COL.cyan },
     uFadeNear: { value: 5.0 }, uFadeFar: { value: 70.0 },
+    uDim: { value: (matchMedia("(max-width: 720px)").matches ? 0.45 : 1.0) },
     uGates: { value: buildGateUniforms() }
   },
   vertexShader: `
@@ -167,7 +169,7 @@ const coolMat = new THREE.ShaderMaterial({
   fragmentShader: `
     precision highp float;
     varying vec2 vUv; varying float vDist;
-    uniform float uFlow, uSpeed, uFadeNear, uFadeFar;
+    uniform float uFlow, uSpeed, uFadeNear, uFadeFar, uDim;
     uniform vec3 cBlue, cCyan;
     uniform vec4 uGates[5];
     void main(){
@@ -186,7 +188,7 @@ const coolMat = new THREE.ShaderMaterial({
       }
       float fade = 1.0 - smoothstep(uFadeNear, uFadeFar, vDist);
       float a = (veil + caustic * 0.22) * fade * smoothstep(2.0, 6.0, vDist);
-      gl_FragColor = vec4(col, a);
+      gl_FragColor = vec4(col, a * uDim);
     }`
 });
 scene.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 280, 2.55, 14, false), coolMat));
@@ -607,8 +609,13 @@ function updateOverlays(p, nowSec) {
       const fy = Math.sin(t0 * 0.55) * 11 + Math.sin(t0 * 1.31) * 4;
       const fx = Math.sin(t0 * 0.42 + 1.3) * 8;
       const rot = Math.sin(t0 * 0.35 + 0.6) * 1.1;
-      const floatTf = "translateY(calc(-50% + " + (-d * 900 + fy).toFixed(1) + "px)) " +
-                      "translateX(" + fx.toFixed(1) + "px) rotate(" + rot.toFixed(2) + "deg)";
+      // mobile: projection is centred at the top (left:50%), so the base
+      // shift is horizontal-centering, with a gentler drift
+      const floatTf = isMobile
+        ? "translateX(calc(-50% + " + (fx * 0.5).toFixed(1) + "px)) " +
+          "translateY(" + (-d * 420 + fy * 0.6).toFixed(1) + "px) rotate(" + (rot * 0.6).toFixed(2) + "deg)"
+        : "translateY(calc(-50% + " + (-d * 900 + fy).toFixed(1) + "px)) " +
+          "translateX(" + fx.toFixed(1) + "px) rotate(" + rot.toFixed(2) + "deg)";
       const wrap = el.querySelector(".st-viz-wrap");
       if (wrap) wrap.style.transform = floatTf;
       if (el._video) {
