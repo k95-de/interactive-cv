@@ -383,8 +383,17 @@ const pctEl = document.getElementById("pct"), stateEl = document.getElementById(
 function setStatus(txt, cls) { statusEl.className = "status" + (cls ? " " + cls : ""); statusEl.querySelector("span").textContent = txt; }
 
 let last = performance.now(), lastPct = -1;
+// adaptive quality: if frames run long on a laptop GPU, lower the render resolution
+let pr = Math.min(1.75, window.devicePixelRatio || 1), slowFrames = 0, fastFrames = 0;
+function adapt(dtMs) {
+  if (dtMs > 22) { slowFrames++; fastFrames = 0; } else if (dtMs < 13) { fastFrames++; slowFrames = 0; }
+  if (slowFrames > 30 && pr > 0.75) { pr = Math.max(0.75, pr - 0.25); renderer.setPixelRatio(pr); resize(); slowFrames = 0; }
+  else if (fastFrames > 300 && pr < Math.min(1.75, window.devicePixelRatio || 1)) { pr += 0.25; renderer.setPixelRatio(pr); resize(); fastFrames = 0; }
+}
 function frame(now) {
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const dtMs = now - last;
+  const dt = Math.min(0.05, dtMs / 1000); last = now;
+  adapt(dtMs);
   const t = now / 1000;
   // ~60 ms time constant opening, ~80 ms closing
   bloom += (target - bloom) * (1 - Math.exp(-dt * (target > bloom ? 17 : 13)));
