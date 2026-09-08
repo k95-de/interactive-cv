@@ -365,8 +365,12 @@
   .st-card::after{ content:""; position:absolute; left:-1px; top:18%; bottom:18%; width:2px; border-radius:2px;
     background:var(--c, var(--cyan)); box-shadow:0 0 16px var(--c, var(--cyan)); opacity:.7; }
   .st-card > *{ will-change:transform, opacity; }
-  .st-years{ white-space:nowrap; font-size:clamp(2.6rem,7vw,6.2rem); }
-  .station.kind-edu .st-years{ font-size:clamp(2rem,5.2vw,4.2rem); }
+  /* nowrap dropped on purpose: longer ranges like "2022–25" left too little
+     margin against fallback-font metrics before Sora loads, and could clip
+     against the card edge. Wrapping is a safe fallback that never happens
+     in practice at this reduced size, but guarantees no visual cut if it did. */
+  .st-years{ font-size:clamp(2.4rem,6.2vw,5.4rem); line-height:.94; }
+  .station.kind-edu .st-years{ font-size:clamp(1.8rem,4.6vw,3.8rem); }
   .st-tools{ display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1rem; }
   .st-tools span{ font-family:var(--font-display); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase;
     color:var(--ink); padding:.34rem .6rem; border-radius:999px; border:1px solid rgba(147,180,255,.18);
@@ -449,7 +453,7 @@
 <!-- HERO -->
 <div class="overlay" id="hero">
   <div class="h-inner">
-    <div class="portrait"><img src="assets/portrait.jpg?v=8" alt="Khaled Abdelhadi" /></div>
+    <div class="portrait"><img src="assets/portrait.jpg?v=9" alt="Khaled Abdelhadi" /></div>
     <div id="route"><div class="r-title">The route</div><ol></ol></div>
     <div class="h-eyebrow">Interactive CV</div>
     <h1><span class="w"><i style="--k:0">K</i><i style="--k:1">h</i><i style="--k:2">a</i><i style="--k:3">l</i><i style="--k:4">e</i><i style="--k:5">d</i></span><b><i style="--k:7">A</i><i style="--k:8">b</i><i style="--k:9">d</i><i style="--k:10">e</i><i style="--k:11">l</i><i style="--k:12">h</i><i style="--k:13">a</i><i style="--k:14">d</i><i style="--k:15">i</i></b></h1>
@@ -487,10 +491,10 @@
 <script src="lib/gsap.min.js"></script>
 <script src="lib/ScrollTrigger.min.js"></script>
 <script src="lib/lenis.min.js"></script>
-<script src="src/content.js?v=21"></script>
-<script src="src/scenes.js?v=21"></script>
-<script src="src/viz.js?v=21"></script>
-<script src="src/space.js?v=21"></script>
-<script src="src/app.js?v=21"></script>
+<script src="src/content.js?v=22"></script>
+<script src="src/scenes.js?v=22"></script>
+<script src="src/viz.js?v=22"></script>
+<script src="src/space.js?v=22"></script>
+<script src="src/app.js?v=22"></script>
 </body>
 </html>
