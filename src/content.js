@@ -9,16 +9,16 @@
      t    : where the JUNCTION sits along the 3D pipe (0..1)
      mode : background scene + card illustration      (src/scenes.js, src/viz.js)
 
-   DATES — confirmed by Khaled: METU NCC 2012–14 (4 semesters), Alfaisal 2015–18.
-   Master start 2019 is still a guess — correct if wrong.
+   OPEN VERSION — the pipe ends after Study & Growth (no Habmann / BVS).
+   Dates follow APPLY/KA.pdf.
    ========================================================================== */
 window.CV = {
 
   meta: {
     name: "Khaled Abdelhadi",
     tagline: {
-      en: "1D simulation engineer — cooling systems & thermal management",
-      de: "1D-Simulationsingenieur — Kühlsysteme & Thermomanagement"
+      en: "Mechanical Engineer — 3 Languages, 2 Degrees, 1 Long Curiosity",
+      de: "Maschinenbauingenieur — 3 Sprachen, 2 Abschlüsse, 1 lange Neugier"
     },
     intro: {
       en: "A career as one flow. Ride the coolant through the pipe — every junction is a step.",
@@ -36,7 +36,17 @@ window.CV = {
     upcoming:  { en: "To be started",    de: "Demnächst" },
     positions: { en: "The route",        de: "Die Route" },
     gateStart: { en: "Gate opens",       de: "Tor öffnet" },
-    gateDone:  { en: "Gate passed",      de: "Tor durchquert" }
+    gateDone:  { en: "Gate passed",      de: "Tor durchquert" },
+    hudStart:  { en: "The Flow",         de: "The Flow" },
+    hudEnd:    { en: "Flow continues",   de: "Strömung geht weiter" },
+    prev:      { en: "Previous station", de: "Vorherige Station" },
+    next:      { en: "Next station",     de: "Nächste Station" },
+    keys:      { en: "↑ ↓ to travel · M for sound", de: "↑ ↓ zum Reisen · M für Ton" },
+    copyLink:  { en: "Copy link",        de: "Link kopieren" },
+    copied:    { en: "Copied ✓",         de: "Kopiert ✓" },
+    statJobs:  { en: "positions",        de: "Stationen" },
+    statDegrees:{ en: "degrees",         de: "Abschlüsse" },
+    statSpan:  { en: "the journey",      de: "die Reise" }
   },
 
   stations: [
@@ -56,7 +66,7 @@ window.CV = {
       role: { en: "Mechanical Engineering continues", de: "Maschinenbau geht weiter" }
     },
     {
-      kind: "job", mode: "aero", img: "assets/jobs/aero.webp", s: 0.211, t: 0.150,
+      kind: "job", mode: "aero", img: "assets/jobs/aero.webp", tools: ["PTC Creo","CNC","CFRP layup","Tensile testing"], s: 0.211, t: 0.150,
       years: "2016–18", dur: { en: "Jun 2016 – Jun 2018 · 2 yrs", de: "Juni 2016 – Juni 2018 · 2 Jahre" },
       org: "Shell Eco Marathon Asia",
       place: { en: "Singapore", de: "Singapur" },
@@ -70,7 +80,7 @@ window.CV = {
       }
     },
     {
-      kind: "job", mode: "mold", img: "assets/jobs/mold.webp", s: 0.264, t: 0.210,
+      kind: "job", mode: "mold", img: "assets/jobs/mold.webp", tools: ["PTC Creo","CNC","Plastic-flow simulation","Steel moulds"], s: 0.264, t: 0.210,
       years: "2017–18", dur: { en: "Jul 2017 – Jan 2018 · 7 mos", de: "Juli 2017 – Jan. 2018 · 7 Monate" },
       org: "Alfanar Electric",
       place: { en: "Riyadh, Saudi Arabia", de: "Riad, Saudi-Arabien" },
@@ -99,7 +109,7 @@ window.CV = {
               de: "Design & Development — Mechanical & Automotive Engineering" }
     },
     {
-      kind: "job", mode: "battery", img: "assets/jobs/battery.webp", s: 0.423, t: 0.390,
+      kind: "job", mode: "battery", img: "assets/jobs/battery.webp", tools: ["JIRA","ASPICE / V-cycle","BMS","Project KPIs"], s: 0.423, t: 0.390,
       years: "2020", dur: { en: "Jan 2020 – Aug 2020 · 8 mos", de: "Jan. 2020 – Aug. 2020 · 8 Monate" },
       org: "A123 Systems",
       place: { en: "Stuttgart, Germany", de: "Stuttgart, Deutschland" },
@@ -113,7 +123,7 @@ window.CV = {
       }
     },
     {
-      kind: "job", mode: "stress", img: "assets/jobs/stress.webp", s: 0.476, t: 0.450,
+      kind: "job", mode: "stress", img: "assets/jobs/stress.webp", tools: ["Altair HyperWorks","FEA","CFRP monocoque","BOM"], s: 0.476, t: 0.450,
       years: "2020", dur: { en: "Mar 2020 – Aug 2020 · 6 mos", de: "März 2020 – Aug. 2020 · 6 Monate" },
       org: "Esslingen Rennstall",
       place: { en: "Esslingen, Germany", de: "Esslingen, Deutschland" },
@@ -127,7 +137,7 @@ window.CV = {
       }
     },
     {
-      kind: "job", mode: "emotor", img: "assets/jobs/emotor.webp", s: 0.529, t: 0.510,
+      kind: "job", mode: "emotor", img: "assets/jobs/emotor.webp", tools: ["GT-SUITE","3D→1D","Oil circuit","Drive-cycle validation"], s: 0.529, t: 0.510,
       years: "2020–21", dur: { en: "Oct 2020 – Mar 2021 · 6 mos", de: "Okt. 2020 – März 2021 · 6 Monate" },
       org: "MAN Truck & Bus",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
@@ -148,7 +158,7 @@ window.CV = {
       role: { en: "Master's completed", de: "Master abgeschlossen" }
     },
     {
-      kind: "job", mode: "flux", img: "assets/jobs/flux.webp", s: 0.635, t: 0.630,
+      kind: "job", mode: "flux", img: "assets/jobs/flux.webp", tools: ["ANSYS Maxwell","GT-SUITE","Loss maps","Hotspots"], s: 0.635, t: 0.630,
       years: "2021–22", dur: { en: "Dec 2021 – May 2022 · 6 mos", de: "Dez. 2021 – Mai 2022 · 6 Monate" },
       org: "MAN Truck & Bus",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
@@ -162,7 +172,7 @@ window.CV = {
       }
     },
     {
-      kind: "job", mode: "network", img: "assets/jobs/bus.webp", s: 0.688, t: 0.690,
+      kind: "job", mode: "network", img: "assets/jobs/bus.webp", tools: ["GT-SUITE","3D CFD validation","Pump sizing","Cooling circuits"], s: 0.688, t: 0.690,
       years: "2022–25", dur: { en: "May 2022 – Apr 2025 · 3 yrs", de: "Mai 2022 – Apr. 2025 · 3 Jahre" },
       org: "MAN Truck & Bus",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
@@ -176,7 +186,7 @@ window.CV = {
       }
     },
     {
-      kind: "job", mode: "network", img: "assets/jobs/network.webp", s: 0.741, t: 0.750,
+      kind: "job", mode: "network", img: "assets/jobs/network.webp", tools: ["GT-SUITE","Variant sub-models","Methodology","Team onboarding"], s: 0.741, t: 0.750,
       years: "2025–26", dur: { en: "Apr 2025 – Feb 2026 · 11 mos", de: "Apr. 2025 – Feb. 2026 · 11 Monate" },
       org: "TRATON R&D Germany",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
@@ -190,7 +200,7 @@ window.CV = {
       }
     },
     {
-      kind: "edu", mode: "training", img: "assets/jobs/ai.webp", s: 0.794, t: 0.810,
+      kind: "edu", mode: "training", img: "assets/jobs/ai.webp", tools: ["AI tools & automation","Project management","Sales operations"], s: 0.794, t: 0.810,
       years: "2026", dur: { en: "Mar 2026 – Aug 2026 · 6 mos", de: "März 2026 – Aug. 2026 · 6 Monate" },
       org: { en: "Study & Growth", de: "Studium & Weiterentwicklung" },
       place: { en: "Self-study & continuous improvement", de: "Selbststudium & kontinuierliche Verbesserung" },
@@ -224,7 +234,6 @@ window.CV = {
       }
     }
   ],
-
   outro: {
     kicker: { en: "The flow continues", de: "Die Strömung geht weiter" },
     line:   { en: "A flow never stops — it finds new paths. Still curious, still building, already tracing the next challenge.",

@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#070A0F" />
-<title>Khaled Abdelhadi — The Flow</title>
+<title>Khaled Abdelhadi — The Flow · Pro</title>
 <meta name="description" content="An interactive, cinematic CV — ride the coolant through the pipe of a simulation engineer's career." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -73,13 +73,14 @@
 
   /* ---------------- hero ---------------- */
   #hero{ z-index:4; }
+  #hero{ --pw:clamp(170px,15.5vw,223px); --pr:clamp(1.4rem,13.9vw,200px); --pt:calc(50% - clamp(33px,3vw,39px)); }
   #hero .portrait{
-    position:absolute; right:clamp(1.4rem,7vw,9rem); top:50%; transform:translateY(-50%);
-    width:clamp(190px,24vw,340px); aspect-ratio:1/1; border-radius:3px; overflow:hidden;
+    position:absolute; right:var(--pr); top:var(--pt); transform:translateY(-50%);
+    width:var(--pw); aspect-ratio:1/1; border-radius:200px; overflow:hidden;
     -webkit-mask-image:radial-gradient(130% 130% at 50% 35%, #000 55%, transparent);
             mask-image:radial-gradient(130% 130% at 50% 35%, #000 55%, transparent);
   }
-  #hero .portrait img{ width:100%; height:100%; object-fit:cover; display:block;
+  #hero .portrait img{ width:100%; height:100%; object-fit:cover; object-position:49% 23%; display:block;
     filter:contrast(1.03) saturate(1.02); }
   #hero .portrait::after{ content:""; position:absolute; inset:0;
     background:linear-gradient(155deg, transparent 55%, rgba(7,10,15,.55));
@@ -167,8 +168,11 @@
     width:clamp(280px,34vw,500px); pointer-events:none; }
   /* soft dark halo behind each projection so it reads on ANY background,
      including the bright tunnel core on phones */
-  .st-viz-wrap::before{ content:""; position:absolute; inset:-14%; z-index:-1;
-    background:radial-gradient(52% 52% at 50% 50%, rgba(4,7,13,.78), transparent 74%); }
+  /* no halo on desktop: the projections carry real transparency, so any box shows */
+  .st-viz-wrap::before{ content:none; }
+  @media (max-width:720px){
+    .st-viz-wrap::before{ content:""; position:absolute; inset:-30%; z-index:-1; border-radius:50%;
+      background:radial-gradient(closest-side, rgba(4,7,13,.55), transparent); } }
   .st-viz{ width:100%; height:auto; display:block;
     filter:drop-shadow(0 0 26px rgba(59,130,246,.20)); }
 
@@ -211,8 +215,9 @@
   .station.has-video .st-viz-wrap{ display:none; }
 
   /* the route — positions list beside the portrait */
-  #route{ position:absolute; right:clamp(1.4rem,7vw,9rem); top:calc(50% + clamp(110px,14vw,190px));
-    width:clamp(200px,24vw,340px); }
+  #route{ position:absolute; right:calc(var(--pr) + var(--pw) / 2); transform:translateX(50%);
+    top:calc(var(--pt) + var(--pw) / 2 + 1.7rem);
+    width:max-content; max-width:clamp(200px,24vw,340px); }
   #route .r-title{ font-family:var(--font-display); font-size:.6rem; letter-spacing:.3em;
     text-transform:uppercase; color:var(--ink-dim); margin-bottom:.6rem; }
   #route ol{ list-style:none; display:flex; flex-direction:column; gap:.28rem; }
@@ -253,7 +258,7 @@
 
   @media (max-width:720px){
     #hero .portrait{ position:static; transform:none; margin-bottom:1.2rem; width:min(46vw,180px); }
-    #route{ position:static; width:auto; margin:.9rem 0 0; }
+    #route{ position:static; transform:none; width:auto; max-width:none; margin:.9rem 0 0; }
     #route ol{ gap:.16rem; }
     #route li{ font-size:.66rem; }
     .overlay .h-inner{ justify-content:flex-end; padding-bottom:3.5rem;
@@ -285,6 +290,124 @@
     #route{ display:none; }  /* short phones: name + portrait take priority */
   }
   @media (prefers-reduced-motion:reduce){ .scroll-cue i{ animation:none; } }
+
+  /* ================= PRO layer ================= */
+  body.post .bg-mesh, body.post .grade{ display:none; }   /* drawn in the shader instead */
+  #hud{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    display:flex; align-items:center; gap:.9rem; font-family:var(--font-display);
+    font-size:.64rem; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-dim);
+    opacity:0; transition:opacity .6s; white-space:nowrap; }
+  body.in-pipe #hud{ opacity:1; }
+  #hud .hud-idx{ color:var(--ink); font-variant-numeric:tabular-nums; }
+  #hud .hud-flow{ width:54px; height:1px; background:rgba(147,180,255,.16); position:relative; overflow:hidden; }
+  #hud .hud-flow i{ position:absolute; inset:0; transform-origin:left; transform:scaleX(.08);
+    background:linear-gradient(90deg,var(--blue-bright),var(--cyan)); }
+  #hud .hud-org{ max-width:36ch; overflow:hidden; text-overflow:ellipsis; }
+  #hud .hud-org.swap{ animation:hudswap .55s cubic-bezier(.2,.7,.2,1); }
+  @keyframes hudswap{ from{ opacity:0; transform:translateY(6px); filter:blur(4px);} to{ opacity:1; transform:none; filter:none;} }
+
+  /* timeline: one dot per station, click to travel */
+  #tl{ position:fixed; right:clamp(.9rem,3vw,2.2rem); top:50%; transform:translateY(-50%);
+    z-index:7; height:52vh; width:14px; pointer-events:auto; opacity:0; transition:opacity .6s; }
+  body.in-pipe #tl{ opacity:1; }
+  #tl .tl-track{ position:absolute; left:6px; top:0; bottom:0; width:2px; background:rgba(147,180,255,.12); }
+  #tl .tl-fill{ position:absolute; left:0; right:0; top:0; height:var(--p,0%);
+    background:linear-gradient(var(--cyan), var(--blue-bright)); box-shadow:0 0 10px rgba(95,227,255,.5); }
+  #tl .tl-list{ position:absolute; inset:0; }
+  #tl .tl-dot{ position:absolute; left:0; top:var(--p); transform:translateY(-50%); width:14px; height:14px;
+    background:none; border:0; padding:0; cursor:pointer; display:grid; place-items:center; }
+  #tl .tl-dot i{ width:6px; height:6px; border-radius:50%; background:var(--c); opacity:.45;
+    transition:transform .35s cubic-bezier(.2,.7,.2,1), opacity .35s, box-shadow .35s; }
+  #tl .tl-dot.kind-edu i{ width:5px; height:5px; border-radius:1px; transform:rotate(45deg); }
+  #tl .tl-dot:hover i, #tl .tl-dot.on i{ opacity:1; transform:scale(1.7); box-shadow:0 0 14px var(--c); }
+  #tl .tl-dot.kind-edu:hover i, #tl .tl-dot.kind-edu.on i{ transform:rotate(45deg) scale(1.6); }
+  #tl .tl-lab{ position:absolute; right:22px; top:50%; transform:translate(8px,-50%); opacity:0;
+    pointer-events:none; white-space:nowrap; text-align:right; display:flex; flex-direction:column; gap:.1rem;
+    transition:opacity .25s, transform .25s; }
+  #tl .tl-dot:hover .tl-lab, #tl .tl-dot.on .tl-lab{ opacity:1; transform:translate(0,-50%); }
+  #tl .tl-lab b{ font-family:var(--font-display); font-weight:600; font-size:.62rem; letter-spacing:.08em; color:var(--c); }
+  #tl .tl-lab em{ font-style:normal; font-family:var(--font-display); font-size:.6rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--ink-dim); }
+  #tl .tl-dot.on .tl-lab em{ color:var(--ink); }
+
+  /* prev / next */
+  #navbtns{ position:fixed; right:clamp(.9rem,3vw,2.2rem); bottom:1.3rem; z-index:7; display:flex; gap:.4rem;
+    opacity:0; transition:opacity .6s; }
+  body.in-pipe #navbtns{ opacity:1; }
+  #navbtns button{ width:38px; height:38px; border-radius:50%; border:1px solid rgba(147,180,255,.22);
+    background:rgba(7,10,15,.45); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    color:var(--ink); cursor:pointer; display:grid; place-items:center; transition:border-color .3s, background .3s, transform .3s; }
+  #navbtns button:hover{ border-color:var(--cyan); background:rgba(29,78,216,.28); transform:translateY(-1px); }
+  #navbtns svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+
+  #flash{ position:fixed; inset:0; z-index:2; pointer-events:none; opacity:0; }
+  #cursor{ position:fixed; left:0; top:0; z-index:8; pointer-events:none; width:280px; height:280px; margin:-140px 0 0 -140px;
+    border-radius:50%; mix-blend-mode:screen; will-change:transform;
+    background:radial-gradient(circle, rgba(95,227,255,.16), rgba(59,130,246,.06) 42%, transparent 70%); }
+  @media (hover:none), (pointer:coarse){ #cursor{ display:none; } }
+
+  /* hero: letters rise once the preloader clears; portrait tilts with the pointer */
+  #hero h1 i{ font-style:normal; display:inline-block; opacity:0; transform:translateY(.55em) rotate(4deg); }
+  body.ready #hero h1 i{ animation:rise 1.1s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:calc(.12s + var(--k) * 45ms); }
+  #hero h1 b i{ background:inherit; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  @keyframes rise{ to{ opacity:1; transform:none; } }
+  #hero .portrait{ transition:transform .12s linear; will-change:transform; }
+  .scroll-cue small{ font-size:.52rem; letter-spacing:.18em; opacity:.45; text-transform:none; }
+  #preloader .pl-pct{ font-family:var(--font-display); font-size:.62rem; letter-spacing:.3em; color:var(--blue-bright); font-variant-numeric:tabular-nums; }
+
+  /* glass card + per-line choreography + tool chips */
+  .st-card{ position:relative; padding:clamp(1.1rem,2.2vw,1.8rem) clamp(1.2rem,2.4vw,2rem);
+    border-radius:16px; background:linear-gradient(160deg, rgba(10,16,28,.62), rgba(7,10,15,.34));
+    border:1px solid rgba(147,180,255,.12); backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.04); }
+  .st-card::before{ content:""; position:absolute; left:0; right:0; top:0; height:1px; border-radius:16px 16px 0 0;
+    background:linear-gradient(90deg, transparent, var(--c, var(--cyan)) 30%, var(--c, var(--cyan)) 60%, transparent); opacity:.8; }
+  .st-card::after{ content:""; position:absolute; left:-1px; top:18%; bottom:18%; width:2px; border-radius:2px;
+    background:var(--c, var(--cyan)); box-shadow:0 0 16px var(--c, var(--cyan)); opacity:.7; }
+  .st-card > *{ will-change:transform, opacity; }
+  .st-years{ white-space:nowrap; font-size:clamp(2.6rem,7vw,6.2rem); }
+  .station.kind-edu .st-years{ font-size:clamp(2rem,5.2vw,4.2rem); }
+  .st-tools{ display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1rem; }
+  .st-tools span{ font-family:var(--font-display); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink); padding:.34rem .6rem; border-radius:999px; border:1px solid rgba(147,180,255,.18);
+    background:rgba(29,78,216,.14); }
+  .station.gate-start .st-tools span{ border-color:rgba(255,107,107,.3); background:rgba(255,90,90,.1); }
+  .station.gate-done .st-tools span{ border-color:rgba(62,207,142,.3); background:rgba(62,207,142,.1); }
+  .st-viz-wrap{ will-change:transform, opacity; }
+
+  #outro .o-stats{ margin-top:1.6rem; display:flex; gap:2.2rem; flex-wrap:wrap; }
+  #outro .o-stats b{ display:block; font-family:var(--font-display); font-weight:600; font-size:1.5rem; letter-spacing:-.01em;
+    background:linear-gradient(94deg, var(--blue-bright), var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #outro .o-stats span{ font-family:var(--font-display); font-size:.6rem; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-dim); }
+  #copy.ok{ color:var(--cyan) !important; }
+
+  @media (max-width:720px){
+    #hud .hud-org, #hud .hud-flow{ display:none; }
+    #hud{ position:static; transform:none; }
+    #tl{ right:auto; left:50%; top:auto; bottom:.9rem; transform:translateX(-50%); height:14px; width:min(62vw,300px); }
+    #tl .tl-track{ left:0; right:0; top:6px; bottom:auto; width:auto; height:2px; }
+    #tl .tl-fill{ top:0; bottom:0; height:auto; width:var(--p,0%); background:linear-gradient(90deg,var(--blue-bright),var(--cyan)); }
+    #tl .tl-dot{ top:0; left:var(--p); transform:translateX(-50%); }
+    #tl .tl-lab{ display:none; }
+    #navbtns{ right:.9rem; bottom:.7rem; }
+    #navbtns button{ width:34px; height:34px; }
+    .st-card{ padding:1rem 1.1rem; border-radius:12px; }
+    .scroll-cue small{ display:none; }
+    .rail{ display:none; }
+    /* header stays on one line with HUD + sound + language */
+    header{ padding:.9rem 1rem; gap:.6rem; }
+    .mark{ white-space:nowrap; font-size:.6rem; letter-spacing:.12em; }
+    #sound{ white-space:nowrap; font-size:.58rem; }
+    .tools{ gap:.7rem; }
+    #hud{ font-size:.6rem; }
+    /* hero: room above the eyebrow, and the scroll cue sits below the copy */
+    #hero .h-eyebrow{ margin-top:1.1rem; margin-bottom:.8rem; }
+    .overlay .h-inner{ padding-bottom:6.2rem; }
+    #route ol{ gap:.08rem; }
+    /* bottom strip belongs to the timeline on phones */
+    body.in-pipe .fine{ display:none; }
+  }
+  @media (prefers-reduced-motion:reduce){ #hero h1 i{ opacity:1; transform:none; animation:none !important; } #hud .hud-org.swap{ animation:none; } }
 </style>
 </head>
 <body>
@@ -292,19 +415,31 @@
 <div id="preloader">
   <div class="pl-label" id="pl-label">Priming the flow</div>
   <div class="pl-bar"><i></i></div>
+  <div class="pl-pct" id="pl-pct">000</div>
 </div>
 
 <div class="bg-mesh"></div>
 <canvas id="gl"></canvas>
 <div class="grade"></div>
-<div class="rail"><i></i></div>
+<nav id="tl" aria-label="Timeline"><div class="tl-track"><div class="tl-fill"></div></div><div class="tl-list"></div></nav>
+<div id="navbtns">
+  <button id="prev" type="button" aria-label="Previous station"><svg viewBox="0 0 24 24"><path d="M6 14l6-6 6 6"/></svg></button>
+  <button id="next" type="button" aria-label="Next station"><svg viewBox="0 0 24 24"><path d="M6 10l6 6 6-6"/></svg></button>
+</div>
+<div id="flash"></div>
+<div id="cursor"></div>
 
 <header>
   <div class="mark">KA — The Flow</div>
+  <div id="hud" aria-live="polite">
+    <span class="hud-idx">00 / 14</span>
+    <span class="hud-flow"><i></i></span>
+    <span class="hud-org">The Flow</span>
+  </div>
   <div class="tools">
     <!-- Sound toggle hidden until we have a real ambient audio loop.
          Un-hide by removing the hidden attribute; wiring is in app.js. -->
-    <button id="sound" hidden>Sound off</button>
+    <button id="sound">Sound off</button>
     <nav class="lang" aria-label="Language">
       <button data-lang="en" class="on">EN</button><span>/</span><button data-lang="de">DE</button>
     </nav>
@@ -314,14 +449,14 @@
 <!-- HERO -->
 <div class="overlay" id="hero">
   <div class="h-inner">
-    <div class="portrait"><img src="assets/portrait.jpg" alt="Khaled Abdelhadi" /></div>
+    <div class="portrait"><img src="assets/portrait.jpg?v=8" alt="Khaled Abdelhadi" /></div>
     <div id="route"><div class="r-title">The route</div><ol></ol></div>
     <div class="h-eyebrow">Interactive CV</div>
-    <h1>Khaled <b>Abdelhadi</b></h1>
+    <h1><span class="w"><i style="--k:0">K</i><i style="--k:1">h</i><i style="--k:2">a</i><i style="--k:3">l</i><i style="--k:4">e</i><i style="--k:5">d</i></span><b><i style="--k:7">A</i><i style="--k:8">b</i><i style="--k:9">d</i><i style="--k:10">e</i><i style="--k:11">l</i><i style="--k:12">h</i><i style="--k:13">a</i><i style="--k:14">d</i><i style="--k:15">i</i></b></h1>
     <div class="h-tag"></div>
     <p class="h-sub"></p>
   </div>
-  <div class="scroll-cue"><span>Scroll</span><i></i></div>
+  <div class="scroll-cue"><span>Scroll</span><i></i><small data-i18n="keys">↑ ↓ to travel · M for sound</small></div>
 </div>
 
 <!-- STATIONS (built by app.js from content.js) -->
@@ -333,16 +468,18 @@
     <div class="o-kick"></div>
     <div class="o-line"></div>
     <div class="o-loc"></div>
+    <div class="o-stats"></div>
     <div class="o-links">
       <a class="cta" href="assets/Khaled-Abdelhadi-CV.pdf" download id="dl-cv">Download CV</a>
       <a href="https://www.linkedin.com/in/khaled-de" target="_blank" rel="noopener">LinkedIn</a>
       <a href="mailto:kabdelhadi795@gmail.com">kabdelhadi795@gmail.com</a>
+      <button id="copy">Copy link</button>
       <button id="replay">Back to start</button>
     </div>
   </div></div>
 </div>
 
-<div class="fine">The Flow · v0.3</div>
+<div class="fine">The Flow · Pro</div>
 
 <div id="scroll-space"></div>
 
@@ -350,9 +487,10 @@
 <script src="lib/gsap.min.js"></script>
 <script src="lib/ScrollTrigger.min.js"></script>
 <script src="lib/lenis.min.js"></script>
-<script src="src/content.js?v=27"></script>
-<script src="src/scenes.js?v=27"></script>
-<script src="src/viz.js?v=27"></script>
-<script src="src/app.js?v=27"></script>
+<script src="src/content.js?v=21"></script>
+<script src="src/scenes.js?v=21"></script>
+<script src="src/viz.js?v=21"></script>
+<script src="src/space.js?v=21"></script>
+<script src="src/app.js?v=21"></script>
 </body>
 </html>
