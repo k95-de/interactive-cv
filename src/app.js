@@ -468,7 +468,7 @@ CV.stations.forEach((st, i) => {
         <div class="st-place"></div>
         <ul class="st-bullets"></ul>
       </div>
-      ${hasImg ? '<div class="st-viz-wrap"><div class="st-photo"><img src="' + st.img + '" alt="" loading="lazy" /></div></div>' : ""}
+      ${hasImg ? '<div class="st-viz-wrap"><div class="st-photo" style="--img:url(' + st.img + ')"><img src="' + st.img + '" alt="" loading="lazy" /></div></div>' : ""}
       ${hasViz ? '<div class="st-viz-wrap"><canvas class="st-viz" width="560" height="340"></canvas></div>' : ""}
     </div>`;
   stage.appendChild(el);
