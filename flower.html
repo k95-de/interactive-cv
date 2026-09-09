@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#04050A" />
+<title>Khaled Abdelhadi — Bloom</title>
+<meta name="description" content="A living, iridescent flower that blossoms as you spread your thumb and index finger apart, tracked from your camera in real time." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --bg:#04050A; --ink:#EEF3FF; --ink-dim:#8E9DBF;
+    --font-display:"Sora", system-ui, sans-serif; --font-body:"Inter", system-ui, sans-serif;
+    --rainbow:linear-gradient(94deg,#FF5E7E 0%,#FFB347 22%,#F9F871 40%,#5CF0B0 58%,#5FE3FF 76%,#B48CFF 100%);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:var(--bg); color:var(--ink); font-family:var(--font-body); height:100%; overflow:hidden; }
+  #gl{ position:fixed; inset:0; width:100vw; height:100vh; z-index:1; display:block; touch-action:none; }
+
+  header{ position:fixed; top:0; left:0; right:0; z-index:6; display:flex; align-items:center; justify-content:space-between;
+    padding:1.1rem clamp(1.4rem,5vw,4rem); mix-blend-mode:screen; }
+  .mark{ font-family:var(--font-display); font-weight:700; letter-spacing:.16em; font-size:.7rem; text-transform:uppercase; color:var(--ink-dim); text-decoration:none; }
+  .mark:hover{ color:var(--ink); }
+  .status{ font-family:var(--font-display); font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim);
+    display:flex; align-items:center; gap:.7rem; font-variant-numeric:tabular-nums; }
+  .status i{ width:7px; height:7px; border-radius:50%; background:var(--ink-dim); opacity:.5; transition:background .2s; }
+  .status.live i{ background:#5CF0B0; opacity:1; box-shadow:0 0 12px #5CF0B0; }
+  .status.err i{ background:#FF5E7E; opacity:1; }
+  .status .ms{ color:var(--ink); opacity:.8; }
+  .status .ms:empty{ display:none; }
+
+  .panel{ position:fixed; left:clamp(1.4rem,5vw,4rem); bottom:clamp(1.4rem,5vh,3rem); z-index:5; max-width:34ch; pointer-events:none; }
+  .eyebrow{ font-family:var(--font-display); letter-spacing:.34em; text-transform:uppercase; font-size:.6rem; color:var(--ink-dim); margin-bottom:.8rem; }
+  .bloom-pct{ font-family:var(--font-display); font-weight:700; line-height:.85; letter-spacing:-.045em; font-size:clamp(3.6rem,9.5vw,7.6rem);
+    font-variant-numeric:tabular-nums; background:var(--rainbow); background-size:300% 100%; animation:hue 9s linear infinite;
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  @keyframes hue{ from{ background-position:0% 0; } to{ background-position:300% 0; } }
+  .bloom-pct small{ font-size:.3em; font-weight:400; letter-spacing:0; }
+  .state{ font-family:var(--font-display); font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink); margin-top:.55rem; min-height:1em; opacity:.85; }
+  .hint{ margin-top:.9rem; color:var(--ink-dim); font-size:clamp(.85rem,1.1vw,.96rem); line-height:1.6; }
+  .hint b{ color:var(--ink); font-weight:500; }
+  .meter{ margin-top:1rem; width:min(280px,60vw); height:2px; background:rgba(147,180,255,.14); position:relative; overflow:hidden; }
+  .meter i{ position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--rainbow); background-size:280px 100%; }
+
+  .cam{ position:fixed; right:clamp(1.4rem,5vw,4rem); bottom:clamp(1.4rem,5vh,3rem); z-index:5; width:clamp(150px,17vw,230px); aspect-ratio:4/3;
+    border-radius:8px; overflow:hidden; background:rgba(4,5,10,.6); border:1px solid rgba(147,180,255,.16); box-shadow:0 24px 70px rgba(0,0,0,.55); }
+  .cam video, .cam canvas{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+  .cam video{ filter:saturate(.4) contrast(1.05) brightness(.75); }
+  .cam .cam-label{ position:absolute; left:.6rem; top:.5rem; font-family:var(--font-display); font-size:.54rem; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-dim); z-index:2; }
+  .cam.hidden{ display:none; }
+
+  .gate{ position:fixed; inset:0; z-index:8; display:flex; align-items:center; justify-content:center; background:rgba(4,5,10,.45);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); transition:opacity .5s; }
+  .gate.off{ opacity:0; pointer-events:none; }
+  .gate-card{ text-align:center; max-width:42ch; padding:2rem; }
+  .gate h1{ font-family:var(--font-display); font-weight:300; font-size:clamp(2rem,5vw,3.4rem); line-height:1; letter-spacing:-.02em; }
+  .gate h1 b{ display:block; font-weight:700; background:var(--rainbow); background-size:300% 100%; animation:hue 9s linear infinite; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .gate p{ color:var(--ink-dim); margin-top:1.1rem; line-height:1.6; font-size:.95rem; }
+  .btn{ margin-top:1.6rem; display:inline-block; cursor:pointer; border:1px solid rgba(238,243,255,.35); background:rgba(238,243,255,.06); color:var(--ink);
+    font-family:var(--font-display); font-size:.7rem; letter-spacing:.22em; text-transform:uppercase; padding:.9rem 1.6rem; border-radius:3px; transition:background .25s, border-color .25s; }
+  .btn:hover{ background:rgba(238,243,255,.14); border-color:#fff; }
+  .btn.ghost{ border-color:rgba(147,180,255,.2); background:none; color:var(--ink-dim); margin-left:.6rem; }
+  .gate .err{ color:#FF5E7E; margin-top:1rem; font-size:.85rem; min-height:1.2em; }
+
+  .manual{ position:fixed; left:50%; bottom:clamp(1.4rem,5vh,3rem); transform:translateX(-50%); z-index:5; display:none; align-items:center; gap:.9rem;
+    font-family:var(--font-display); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-dim); }
+  .manual.on{ display:flex; }
+  .manual input{ width:min(260px,50vw); accent-color:#5CF0B0; }
+  @media (max-width:640px){ .panel{ max-width:56vw; } .cam{ width:34vw; } .hint{ display:none; } }
+</style>
+</head>
+<body>
+
+<canvas id="gl"></canvas>
+
+<header>
+  <a class="mark" href="index.html">← The Flow</a>
+  <div class="status" id="status"><i></i><span id="stxt">idle</span><span class="ms" id="ms"></span></div>
+</header>
+
+<div class="panel">
+  <div class="eyebrow">Motion study · Bloom</div>
+  <div class="bloom-pct"><span id="pct">0</span><small>%</small></div>
+  <div class="state" id="state">bud</div>
+  <div class="meter"><i id="meter"></i></div>
+  <p class="hint">Hold a hand up to the camera. <b>Spread thumb and index finger</b> to open the flower, <b>pinch them together</b> to close it. Move your hand to tilt it.</p>
+</div>
+
+<div class="cam hidden" id="cam">
+  <span class="cam-label">camera</span>
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="hand"></canvas>
+</div>
+
+<div class="manual" id="manual"><span>closed</span><input id="slider" type="range" min="0" max="1000" value="0" /><span>open</span></div>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <h1>Open your hand,<b>open the flower.</b></h1>
+    <p>Your webcam tracks thumb and index finger in the browser. Nothing is uploaded.</p>
+    <button class="btn" id="start">Enable camera</button>
+    <button class="btn ghost" id="skip">Use slider instead</button>
+    <div class="err" id="gate-err"></div>
+  </div>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script>
+(function () {
+"use strict";
+const TAU = Math.PI * 2;
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const lerp  = (a, b, t) => a + (b - a) * t;
+const smooth = (x) => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+const stage = (x, a, b) => smooth((x - a) / (b - a));
+
+/* ========================================================================
+   RENDERER + HDR PIPELINE
+   scene → HDR target (MSAA) → bright pass → 2-level gaussian bloom →
+   composite (bloom, chromatic aberration, grain, vignette, ACES, sRGB)
+   ====================================================================== */
+const canvas = document.getElementById("gl");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: "high-performance", stencil: false });
+renderer.toneMapping = THREE.NoToneMapping;
+renderer.outputColorSpace = THREE.LinearSRGBColorSpace;   // we convert to sRGB in the composite pass
+const Q = new URLSearchParams(location.search);
+const isGL2 = renderer.capabilities.isWebGL2;
+const hdr = !Q.has("nohdr") && isGL2 && (renderer.extensions.get("EXT_color_buffer_float") || renderer.extensions.get("EXT_color_buffer_half_float"));
+const rtType = hdr ? THREE.HalfFloatType : THREE.UnsignedByteType;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 60);
+const R = 1.0;
+camera.position.set(0, R * 1.35, R * 2.9);
+camera.lookAt(0, -R * 0.2, 0);
+const rig = new THREE.Group(); scene.add(rig);
+
+const rtScene = new THREE.WebGLRenderTarget(2, 2, { type: rtType, samples: (isGL2 && !Q.has("nomsaa")) ? 4 : 0, depthBuffer: true });
+const mk = () => new THREE.WebGLRenderTarget(2, 2, { type: rtType, depthBuffer: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+const rtH0 = mk(), rtH1 = mk(), rtQ0 = mk(), rtQ1 = mk();
+
+let pr = Math.min(2, window.devicePixelRatio || 1);
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setPixelRatio(pr);
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.fov = w < h ? 56 : 42; camera.updateProjectionMatrix();
+  const W = Math.round(w * pr), H = Math.round(h * pr);
+  rtScene.setSize(W, H);
+  rtH0.setSize(W >> 1, H >> 1); rtH1.setSize(W >> 1, H >> 1);
+  rtQ0.setSize(W >> 2, H >> 2); rtQ1.setSize(W >> 2, H >> 2);
+  bgMat.uniforms.uRes.value.set(W, H);
+  compMat.uniforms.uRes.value.set(W, H);
+  const k = H / (2 * Math.tan(camera.fov * Math.PI / 360));
+  pollen.m.uniforms.uScale.value = k; bokeh.m.uniforms.uScale.value = k;
+}
+window.addEventListener("resize", resize);
+
+/* ------------------------------ shaders ------------------------------ */
+const NOISE = /* glsl */`
+  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+  float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+    return mix(mix(hash(i), hash(i+vec2(1,0)), f.x), mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y); }
+  float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++){ v += a * noise(p); p = p * 2.03 + 17.1; a *= 0.5; } return v; }
+  vec3 hsl2rgb(vec3 c){ vec3 rgb = clamp(abs(mod(c.x*6.0 + vec3(0.0,4.0,2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    return c.z + c.y * (rgb - 0.5) * (1.0 - abs(2.0*c.z - 1.0)); }
+`;
+
+// aurora background, drawn straight in clip space behind everything
+const bgMat = new THREE.ShaderMaterial({
+  depthWrite: false, depthTest: false,
+  uniforms: { uTime: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) }, uOpen: { value: 0 }, uTilt: { value: new THREE.Vector2() } },
+  vertexShader: `void main(){ gl_Position = vec4(position.xy, 0.9999, 1.0); }`,
+  fragmentShader: NOISE + /* glsl */`
+    uniform float uTime, uOpen; uniform vec2 uRes, uTilt;
+    void main(){
+      vec2 uv = gl_FragCoord.xy / uRes; vec2 p = (uv - 0.5) * vec2(uRes.x / uRes.y, 1.0);
+      p += uTilt * 0.05;
+      float t = uTime * 0.035;
+      float n1 = fbm(p * 1.6 + vec2(t, -t * 0.7));
+      float n2 = fbm(p * 2.4 - vec2(t * 0.6, t) + n1 * 1.5);
+      vec3 c1 = vec3(0.16, 0.08, 0.42), c2 = vec3(0.42, 0.10, 0.36), c3 = vec3(0.04, 0.30, 0.42), c4 = vec3(0.05, 0.36, 0.22);
+      vec3 col = mix(c1, c2, smoothstep(0.3, 0.75, n1));
+      col = mix(col, c3, smoothstep(0.35, 0.8, n2) * 0.8);
+      col = mix(col, c4, smoothstep(0.55, 0.9, fbm(p * 1.1 + 5.0 + t)) * 0.5);
+      col *= 0.13 + 0.12 * uOpen;
+      // light band behind the flower
+      float d = length(p - vec2(0.0, 0.05));
+      col += vec3(0.22, 0.12, 0.36) * exp(-d * d * 3.0) * (0.25 + 0.75 * uOpen);
+      col *= smoothstep(1.35, 0.25, d);          // vignette
+      col += (hash(uv * uRes + uTime) - 0.5) * 0.012;
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+});
+const bg = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMat);
+bg.frustumCulled = false; bg.renderOrder = -10; scene.add(bg);
+
+const petalVert = /* glsl */`
+  attribute float aAngle, aRing, aHue, aSeed, aScale, aFixedOpen; attribute vec3 aOffset;
+  uniform float uOpen, uTime, uRadius, uVel, uHueDrift;
+  varying vec2 vUv; varying vec3 vPos, vN; varying float vHue, vOpen;
+  const float PI = 3.14159265;
+  float ease(float x){ x = clamp(x, 0.0, 1.0); return x*x*(3.0-2.0*x); }
+
+  vec3 petalPoint(float s, float t, float open, float len, float wmax, float th){
+    float w = pow(sin(PI * s), 0.72) * (1.0 - 0.12 * s) * wmax * len;
+    float x = s * len, y = t * w * 0.5;
+    float cup = mix(0.75, 0.38, open);
+    float lift = s * s * len * mix(0.30, -0.16, open);
+    float ripple = sin(t * PI + s * 5.0 + uTime * 1.6 + aSeed * 6.28) * 0.008 * len * open;
+    float z = -cup * t * t * w * 0.5 + lift + ripple;
+    float a = th - uVel * 0.09 * s * s;            // tips lag the base a touch → organic whip
+    vec3 p = vec3(x * cos(a) - z * sin(a), y, x * sin(a) + z * cos(a));
+    return vec3(p.x, p.z, p.y);                    // lift → +Y
+  }
+
+  void main(){
+    vUv = uv;
+    float s = uv.x, t = uv.y * 2.0 - 1.0, ring = aRing;
+    float from = ring * 0.17, to = 0.60 + ring * 0.18;
+    float open = aFixedOpen >= 0.0 ? aFixedOpen : ease((uOpen - from) / (to - from));
+    vOpen = open;
+    float len  = uRadius * (1.0 - ring * 0.25) * mix(0.68, 1.0, open) * aScale;
+    float wmax = (0.46 + ring * 0.05) * mix(0.85, 1.0, open);
+    float th = mix(1.28, 0.16 + ring * 0.18, open) + sin(uTime * 1.3 + aSeed * 6.2832) * 0.02 * open;
+
+    vec3 p  = petalPoint(s, t, open, len, wmax, th);
+    vec3 ps = petalPoint(min(s + 0.01, 1.0), t, open, len, wmax, th);
+    vec3 pt = petalPoint(s, t + 0.02, open, len, wmax, th);
+    vec3 n = normalize(cross(ps - p, pt - p));
+
+    float ang = aAngle + mix(0.95, 0.0, open) + ring * 0.42;
+    float ca = cos(ang), sa = sin(ang);
+    p = vec3(p.x * ca - p.z * sa, p.y + ring * uRadius * 0.06 * open, p.x * sa + p.z * ca) + aOffset;
+    n = vec3(n.x * ca - n.z * sa, n.y, n.x * sa + n.z * ca);
+
+    vHue = aHue + (s * 0.10 + uTime * 0.012) * uHueDrift;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    vPos = mv.xyz; vN = normalMatrix * n;
+    gl_Position = projectionMatrix * mv;
+  }`;
+
+const petalFrag = NOISE + /* glsl */`
+  uniform float uSat, uLight, uGlow, uTime, uIrid;
+  varying vec2 vUv; varying vec3 vPos, vN; varying float vHue, vOpen;
+  void main(){
+    vec3 n = normalize(vN); if (!gl_FrontFacing) n = -n;
+    vec3 v = normalize(-vPos);
+    vec3 l1 = normalize(vec3(0.45, 0.85, 0.55));       // key
+    vec3 l2 = normalize(vec3(-0.7, 0.15, -0.5));       // cool back light
+    float ndv = max(dot(n, v), 0.0);
+    float h = fract(vHue);
+    vec3 base = hsl2rgb(vec3(h, uSat, uLight * 0.72));
+    vec3 tip  = hsl2rgb(vec3(fract(h + 0.10), uSat, uLight * 1.12));
+    vec3 albedo = mix(base, tip, smoothstep(0.05, 0.95, vUv.x));
+    // veins: ridged noise flowing along the petal
+    float vn = noise(vec2(vUv.x * 6.0, (vUv.y - 0.5) * 22.0 + vUv.x * 3.0));
+    float veins = 1.0 - abs(sin((vUv.y - 0.5) * 36.0 + vn * 4.0)) * 0.5;
+    veins = mix(1.0, veins, 0.35 * vUv.x);
+    float mid = smoothstep(0.03, 0.0, abs(vUv.y - 0.5)) * 0.22 * (1.0 - vUv.x);
+    albedo *= veins; albedo += mid * tip;
+
+    float ndl = max(dot(n, l1), 0.0);
+    vec3 col = albedo * (0.22 + 0.78 * ndl);
+    // light transmitted through the petal (subsurface-like)
+    float back = pow(max(dot(-n, l1), 0.0), 1.6) * 0.35 + pow(max(dot(-n, l2), 0.0), 2.0) * 0.25;
+    col += albedo * back * vec3(1.05, 0.95, 1.0);
+    // specular
+    vec3 hv = normalize(l1 + v);
+    col += pow(max(dot(n, hv), 0.0), 64.0) * 0.35 * mix(vec3(1.0), tip, 0.4);
+    // iridescent thin-film sheen
+    float fres = pow(1.0 - ndv, 3.0);
+    vec3 irid = 0.5 + 0.5 * cos(6.2832 * (ndv * 1.7 + vec3(0.0, 0.33, 0.67)) + uTime * 0.4 + vUv.x * 2.0);
+    col += irid * fres * uIrid + albedo * fres * 0.12;
+    // glowing edges and tip for the bloom pass
+    float edge = smoothstep(0.72, 1.0, abs(vUv.y * 2.0 - 1.0)) + smoothstep(0.88, 1.0, vUv.x);
+    col += tip * edge * uGlow * (0.25 + 0.75 * vOpen);
+    gl_FragColor = vec4(col, 1.0);
+  }`;
+
+function petalGeometry(instances) {
+  const base = new THREE.PlaneGeometry(1, 1, 30, 16);
+  const g = new THREE.InstancedBufferGeometry();
+  g.index = base.index; g.attributes.position = base.attributes.position; g.attributes.uv = base.attributes.uv;
+  const n = instances.length;
+  const A = { aAngle: 1, aRing: 1, aHue: 1, aSeed: 1, aScale: 1, aFixedOpen: 1, aOffset: 3 };
+  const buf = {}; for (const k in A) buf[k] = new Float32Array(n * A[k]);
+  instances.forEach((it, i) => {
+    buf.aAngle[i] = it.angle; buf.aRing[i] = it.ring; buf.aHue[i] = it.hue; buf.aSeed[i] = Math.random();
+    buf.aScale[i] = it.scale ?? 1; buf.aFixedOpen[i] = it.fixedOpen ?? -1; buf.aOffset.set(it.offset || [0, 0, 0], i * 3);
+  });
+  for (const k in A) g.setAttribute(k, new THREE.InstancedBufferAttribute(buf[k], A[k]));
+  g.instanceCount = n; return g;
+}
+
+const uniforms = {
+  uOpen: { value: 0 }, uTime: { value: 0 }, uRadius: { value: R }, uVel: { value: 0 },
+  uSat: { value: 0.95 }, uLight: { value: 0.52 }, uGlow: { value: 0.45 }, uIrid: { value: 0.5 }, uHueDrift: { value: 1 },
+};
+const petalMat = new THREE.ShaderMaterial({ vertexShader: petalVert, fragmentShader: petalFrag, uniforms, side: THREE.DoubleSide });
+const petals = [];
+[[13, 0, 0.00], [8, 1, 0.33], [5, 2, 0.66]].forEach(([n, ring, off]) => { for (let i = 0; i < n; i++) petals.push({ angle: (i / n) * TAU, ring, hue: off + (i / n) * 0.9 }); });
+const petalMesh = new THREE.Mesh(petalGeometry(petals), petalMat); petalMesh.frustumCulled = false; rig.add(petalMesh);
+
+const leafUniforms = Object.assign({}, uniforms, { uSat: { value: 0.55 }, uLight: { value: 0.40 }, uGlow: { value: 0.25 }, uIrid: { value: 0.35 }, uHueDrift: { value: 0 } });
+const leafMesh = new THREE.Mesh(petalGeometry([
+  { angle: 0.9, ring: 0, hue: 0.38, scale: 0.95, fixedOpen: 0.9, offset: [0.02, -R * 0.95, 0] },
+  { angle: 3.6, ring: 0, hue: 0.34, scale: 0.78, fixedOpen: 0.85, offset: [-0.02, -R * 1.45, 0] },
+]), new THREE.ShaderMaterial({ vertexShader: petalVert, fragmentShader: petalFrag, uniforms: leafUniforms, side: THREE.DoubleSide }));
+leafMesh.frustumCulled = false; scene.add(leafMesh);
+
+const stemCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(0.10, -R * 4.5, 0), new THREE.Vector3(-0.12, -R * 2.6, 0.05), new THREE.Vector3(0.06, -R * 1.2, 0), new THREE.Vector3(0, -R * 0.05, 0)]);
+scene.add(new THREE.Mesh(new THREE.TubeGeometry(stemCurve, 48, R * 0.035, 10, false), new THREE.MeshStandardMaterial({ color: 0x2f9a6a, emissive: 0x0b3d2a, roughness: 0.5, metalness: 0.15 })));
+
+// heart
+const coreMat = new THREE.MeshBasicMaterial({ color: 0xfff3c4 });
+const core = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), coreMat); rig.add(core);
+const glowTex = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d"), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.3, "rgba(255,255,255,.45)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c);
+})();
+const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, color: 0xffe0b0 })); rig.add(glow);
+
+const STAMENS = 20;
+const stamenGeo = new THREE.CylinderGeometry(0.007, 0.011, 1, 6, 1); stamenGeo.translate(0, 0.5, 0);
+const stamens = new THREE.InstancedMesh(stamenGeo, new THREE.MeshBasicMaterial({ color: 0xfff2c0 }), STAMENS);
+const anthers = new THREE.InstancedMesh(new THREE.SphereGeometry(0.03, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffc14a }), STAMENS);
+rig.add(stamens, anthers);
+const stamenDir = Array.from({ length: STAMENS }, (_, i) => { const a = (i / STAMENS) * TAU + (i % 2) * 0.17, tilt = 0.55 + (i % 3) * 0.18; return new THREE.Vector3(Math.sin(tilt) * Math.cos(a), Math.cos(tilt), Math.sin(tilt) * Math.sin(a)); });
+const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _up = new THREE.Vector3(0, 1, 0), _s = new THREE.Vector3(), _p = new THREE.Vector3();
+
+// soft particle shader (pollen + background bokeh)
+const dotVert = `attribute float aSize; attribute vec3 aColor; varying vec3 vC; varying float vA; uniform float uScale, uAlpha;
+  void main(){ vC = aColor; vec4 mv = modelViewMatrix * vec4(position, 1.0); float d = -mv.z; vA = uAlpha * smoothstep(0.2, 1.5, d);
+  gl_PointSize = aSize * uScale / d; gl_Position = projectionMatrix * mv; }`;
+const dotFrag = `varying vec3 vC; varying float vA; uniform float uSoft;
+  void main(){ float r = length(gl_PointCoord - 0.5) * 2.0; float a = smoothstep(1.0, 1.0 - uSoft, r); gl_FragColor = vec4(vC * a * vA, 1.0); }`;
+function dots(n, spawn, size, soft, alpha) {
+  const pos = new Float32Array(n * 3), col = new Float32Array(n * 3), sz = new Float32Array(n), seeds = [];
+  for (let i = 0; i < n; i++) { const s = spawn(i); seeds.push(s); const c = new THREE.Color().setHSL(s.hue, 0.85, 0.65); col.set([c.r, c.g, c.b], i * 3); sz[i] = size * (0.5 + Math.random()); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("aColor", new THREE.BufferAttribute(col, 3)); g.setAttribute("aSize", new THREE.BufferAttribute(sz, 1));
+  const m = new THREE.ShaderMaterial({ vertexShader: dotVert, fragmentShader: dotFrag, uniforms: { uScale: { value: 300 }, uAlpha: { value: alpha }, uSoft: { value: soft } }, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
+  const pts = new THREE.Points(g, m); pts.frustumCulled = false; return { pts, pos, seeds, g, m };
+}
+const pollen = dots(360, () => ({ a: Math.random() * TAU, r: 0.15 + Math.random() * 0.65, h: Math.random() * 0.55 - 0.1, s: 0.2 + Math.random() * 0.6, ph: Math.random() * TAU, hue: Math.random() }), 0.035, 0.5, 0);
+rig.add(pollen.pts);
+const bokeh = dots(90, () => ({ x: (Math.random() - 0.5) * 7, y: (Math.random() - 0.5) * 4.5, z: -1.5 - Math.random() * 4, s: 0.05 + Math.random() * 0.1, ph: Math.random() * TAU, hue: Math.random() }), 0.28, 0.12, 0.05);
+scene.add(bokeh.pts);
+
+scene.add(new THREE.HemisphereLight(0xbfd8ff, 0x1a0f2e, 0.9));
+const key = new THREE.DirectionalLight(0xfff0dd, 1.2); key.position.set(1, 2.5, 2); scene.add(key);
+
+/* ---------------------------- post passes ---------------------------- */
+const quadScene = new THREE.Scene(), quadCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2)); quadScene.add(quad);
+const QV = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+const brightMat = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, uTh: { value: 0.95 } }, vertexShader: QV, fragmentShader: `
+  uniform sampler2D tex; uniform float uTh; varying vec2 vUv;
+  void main(){ vec3 c = texture2D(tex, vUv).rgb; float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+    gl_FragColor = vec4(c * smoothstep(uTh, uTh + 0.5, l), 1.0); }` });
+const blurMat = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, uDir: { value: new THREE.Vector2() } }, vertexShader: QV, fragmentShader: `
+  uniform sampler2D tex; uniform vec2 uDir; varying vec2 vUv;
+  void main(){ vec3 c = texture2D(tex, vUv).rgb * 0.2270270270;
+    c += (texture2D(tex, vUv + uDir * 1.3846153846).rgb + texture2D(tex, vUv - uDir * 1.3846153846).rgb) * 0.3162162162;
+    c += (texture2D(tex, vUv + uDir * 3.2307692308).rgb + texture2D(tex, vUv - uDir * 3.2307692308).rgb) * 0.0702702703;
+    gl_FragColor = vec4(c, 1.0); }` });
+const compMat = new THREE.ShaderMaterial({ uniforms: { tScene: { value: null }, tB1: { value: null }, tB2: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uTime: { value: 0 }, uVel: { value: 0 }, uOpen: { value: 0 }, uBloom: { value: Q.has("nobloom") ? 0 : 1 } }, vertexShader: QV, fragmentShader: `
+  uniform sampler2D tScene, tB1, tB2; uniform vec2 uRes; uniform float uTime, uVel, uOpen, uBloom; varying vec2 vUv;
+  vec3 aces(vec3 x){ return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
+  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+  void main(){
+    vec2 d = vUv - 0.5; float r2 = dot(d, d);
+    float ca = (0.0025 + abs(uVel) * 0.004) * r2 * 4.0;          // chromatic aberration grows with motion
+    vec3 col = vec3(texture2D(tScene, vUv + d * ca).r, texture2D(tScene, vUv).g, texture2D(tScene, vUv - d * ca).b);
+    vec3 bloom = texture2D(tB1, vUv).rgb * 0.9 + texture2D(tB2, vUv).rgb * 1.3;
+    col += bloom * (0.35 + 0.25 * uOpen) * uBloom;
+    col *= 1.0 - smoothstep(0.35, 1.2, r2 * 2.2) * 0.55;          // vignette
+    col = aces(col * 1.05);
+    col += (hash(vUv * uRes + fract(uTime) * 7.0) - 0.5) * 0.022;  // film grain
+    col = pow(col, vec3(1.0 / 2.2));
+    gl_FragColor = vec4(col, 1.0);
+  }` });
+function pass(mat, tex, target) { quad.material = mat; mat.uniforms.tex.value = tex; renderer.setRenderTarget(target); renderer.render(quadScene, quadCam); }
+function blur(src, tmp, w, h) {
+  blurMat.uniforms.uDir.value.set(1 / w, 0); pass(blurMat, src.texture, tmp);
+  blurMat.uniforms.uDir.value.set(0, 1 / h); pass(blurMat, tmp.texture, src);
+}
+resize();
+
+/* ========================================================================
+   STATE — the tracker writes `target`; the render reads it with a 20 ms
+   blend (just enough to bridge 30 fps camera frames to 60+ fps rendering).
+   ====================================================================== */
+let target = 0, bloom = 0, vel = 0, handX = 0, handY = 0, tiltX = 0, tiltY = 0;
+const pctEl = document.getElementById("pct"), stateEl = document.getElementById("state"), meterEl = document.getElementById("meter"),
+      statusEl = document.getElementById("status"), stxt = document.getElementById("stxt"), msEl = document.getElementById("ms");
+function setStatus(txt, cls) { statusEl.className = "status" + (cls ? " " + cls : ""); stxt.textContent = txt; }
+
+let last = performance.now(), lastPct = -1, slow = 0, fast = 0;
+function adapt(ms) {
+  if (ms > 24) { slow++; fast = 0; } else if (ms < 14) { fast++; slow = 0; }
+  const maxPr = Math.min(2, window.devicePixelRatio || 1);
+  if (slow > 40 && pr > 1) { pr = Math.max(1, pr - 0.25); resize(); slow = 0; }
+  else if (fast > 400 && pr < maxPr) { pr = Math.min(maxPr, pr + 0.25); resize(); fast = 0; }
+}
+function frame(now) {
+  const ms = now - last, dt = Math.min(0.05, ms / 1000); last = now; adapt(ms);
+  const t = now / 1000;
+  const prev = bloom;
+  bloom += (target - bloom) * (1 - Math.exp(-dt * 50));
+  vel += (((bloom - prev) / Math.max(dt, 1e-3)) - vel) * (1 - Math.exp(-dt * 20));
+  vel = clamp(vel, -6, 6);
+  tiltX += (handX - tiltX) * (1 - Math.exp(-dt * 12)); tiltY += (handY - tiltY) * (1 - Math.exp(-dt * 12));
+
+  uniforms.uOpen.value = bloom; uniforms.uTime.value = t; uniforms.uVel.value = vel;
+  bgMat.uniforms.uTime.value = t; bgMat.uniforms.uOpen.value = bloom; bgMat.uniforms.uTilt.value.set(tiltX, tiltY);
+  compMat.uniforms.uTime.value = t; compMat.uniforms.uVel.value = vel; compMat.uniforms.uOpen.value = bloom;
+  rig.rotation.y = tiltX * 0.55 + Math.sin(t * 0.25) * 0.08; rig.rotation.x = -tiltY * 0.35; rig.rotation.z = Math.sin(t * 0.4) * 0.02;
+
+  const st = stage(bloom, 0.62, 1.0);
+  core.scale.setScalar(R * lerp(0.05, 0.11, st) * (1 + Math.sin(t * 2.2) * 0.03));
+  coreMat.color.setHSL((t * 0.03) % 1, 0.5, 0.9);
+  glow.scale.setScalar(R * lerp(0.3, 1.1, st)); glow.material.opacity = 0.35 + st * 0.5;
+  for (let i = 0; i < STAMENS; i++) {
+    const len = R * 0.30 * st * (0.8 + 0.2 * Math.sin(i * 1.7 + t * 0.9));
+    _q.setFromUnitVectors(_up, stamenDir[i]); _s.set(1, Math.max(0.001, len), 1);
+    _m.compose(_p.set(0, 0, 0), _q, _s); stamens.setMatrixAt(i, _m);
+    _p.copy(stamenDir[i]).multiplyScalar(len); _s.setScalar(Math.max(0.001, st)); _m.compose(_p, _q, _s); anthers.setMatrixAt(i, _m);
+  }
+  stamens.instanceMatrix.needsUpdate = true; anthers.instanceMatrix.needsUpdate = true;
+
+  const pf = stage(bloom, 0.55, 1.0); pollen.m.uniforms.uAlpha.value = pf * 0.7;
+  if (pf > 0) {
+    const P = pollen.pos;
+    pollen.seeds.forEach((p, i) => { const rr = R * (0.15 + p.r * pf), a = p.a + t * p.s * 0.35;
+      P[i * 3] = Math.cos(a) * rr; P[i * 3 + 1] = R * 0.1 + p.h * R * pf + Math.sin(t * p.s * 2 + p.ph) * 0.06; P[i * 3 + 2] = Math.sin(a) * rr; });
+    pollen.g.attributes.position.needsUpdate = true;
+  }
+  const B = bokeh.pos;
+  bokeh.seeds.forEach((p, i) => { B[i * 3] = p.x + Math.sin(t * p.s + p.ph) * 0.3; B[i * 3 + 1] = p.y + Math.cos(t * p.s * 0.7 + p.ph) * 0.2; B[i * 3 + 2] = p.z; });
+  bokeh.g.attributes.position.needsUpdate = true;
+  bokeh.m.uniforms.uAlpha.value = 0.022 + bloom * 0.03;
+
+  // --- pipeline ---
+  renderer.setRenderTarget(rtScene); renderer.render(scene, camera);
+  pass(brightMat, rtScene.texture, rtH0);
+  blur(rtH0, rtH1, rtH0.width, rtH0.height);
+  pass(blurMat, rtH0.texture, rtQ0);            // (dir left from last vertical pass; acts as a cheap downsample)
+  blur(rtQ0, rtQ1, rtQ0.width, rtQ0.height); blur(rtQ0, rtQ1, rtQ0.width, rtQ0.height);
+  quad.material = compMat; compMat.uniforms.tScene.value = rtScene.texture; compMat.uniforms.tB1.value = rtH0.texture; compMat.uniforms.tB2.value = rtQ0.texture;
+  renderer.setRenderTarget(null); renderer.render(quadScene, quadCam);
+
+  const p = Math.round(bloom * 100);
+  if (p !== lastPct) { lastPct = p; pctEl.textContent = p; meterEl.style.width = p + "%"; stateEl.textContent = p < 8 ? "bud" : p < 45 ? "opening" : p < 85 ? "unfolding" : "in bloom"; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ========================================================================
+   HAND TRACKING — MediaPipe HandLandmarker, run the moment each camera
+   frame lands (requestVideoFrameCallback), filtered with a One Euro filter:
+   no lag while the fingers move, steady when they hold still.
+   ====================================================================== */
+const video = document.getElementById("video"), handCv = document.getElementById("hand"), hctx = handCv.getContext("2d");
+const camBox = document.getElementById("cam"), gate = document.getElementById("gate"), gateErr = document.getElementById("gate-err");
+const manual = document.getElementById("manual"), slider = document.getElementById("slider");
+const PINCH_CLOSED = 0.26, PINCH_OPEN = 1.40;
+
+function oneEuro(minCutoff, beta, dCutoff) {
+  let xPrev = null, dxPrev = 0, tPrev = 0;
+  const alpha = (cut, dt) => { const r = TAU * cut * dt; return r / (r + 1); };
+  return (x, t) => {
+    if (xPrev === null) { xPrev = x; tPrev = t; return x; }
+    const dt = Math.max(1e-3, (t - tPrev) / 1000); tPrev = t;
+    const dx = (x - xPrev) / dt, ad = alpha(dCutoff, dt);
+    dxPrev = ad * dx + (1 - ad) * dxPrev;
+    const cut = minCutoff + beta * Math.abs(dxPrev), a = alpha(cut, dt);
+    xPrev = a * x + (1 - a) * xPrev; return xPrev;
+  };
+}
+const fPinch = oneEuro(1.2, 0.6, 1.0), fX = oneEuro(1.0, 0.3, 1.0), fY = oneEuro(1.0, 0.3, 1.0);
+
+async function startCamera() {
+  gateErr.textContent = ""; setStatus("loading model…");
+  let vision, HandLandmarker, FilesetResolver;
+  try {
+    const mod = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs");
+    HandLandmarker = mod.HandLandmarker; FilesetResolver = mod.FilesetResolver;
+    vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+  } catch (e) { console.error(e); throw new Error("Could not load the hand-tracking model (internet required)."); }
+  const landmarker = await HandLandmarker.createFromOptions(vision, {
+    baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
+    runningMode: "VIDEO", numHands: 1, minHandDetectionConfidence: 0.5, minHandPresenceConfidence: 0.5, minTrackingConfidence: 0.35,
+  });
+  setStatus("requesting camera…");
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { ideal: 60, min: 24 } }, audio: false }); }
+  catch (e) { console.error(e); throw new Error(e.name === "NotAllowedError" ? "Camera permission was denied." : "No camera available."); }
+  video.srcObject = stream;
+  await new Promise((res) => { video.onloadedmetadata = () => { video.play(); res(); }; });
+  handCv.width = video.videoWidth; handCv.height = video.videoHeight;
+  camBox.classList.remove("hidden"); gate.classList.add("off"); setStatus("show your hand", "live");
+
+  const bones = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+  let lastSeen = 0, infEma = 0;
+  const detect = () => {
+    const t0 = performance.now();
+    const res = landmarker.detectForVideo(video, t0);
+    const inf = performance.now() - t0; infEma += (inf - infEma) * 0.2;
+    hctx.clearRect(0, 0, handCv.width, handCv.height);
+    if (res.landmarks && res.landmarks.length) {
+      const lm = res.landmarks[0], W = handCv.width, H = handCv.height;
+      const px = (p) => [p.x * W, p.y * H];
+      const [tx, ty] = px(lm[4]), [ix, iy] = px(lm[8]), [wx, wy] = px(lm[0]), [mx, my] = px(lm[9]);
+      const palm = Math.hypot(mx - wx, my - wy) || 1;
+      const pinch = fPinch(Math.hypot(ix - tx, iy - ty) / palm, t0);
+      target = clamp((pinch - PINCH_CLOSED) / (PINCH_OPEN - PINCH_CLOSED), 0, 1);
+      handX = fX((0.5 - lm[9].x) * 2, t0); handY = fY((0.5 - lm[9].y) * 2, t0);
+      lastSeen = t0;
+      setStatus(target < 0.04 ? "closed" : target > 0.96 ? "open" : "tracking", "live");
+      msEl.textContent = infEma.toFixed(0) + " ms";
+      hctx.lineWidth = 1.2; hctx.strokeStyle = "rgba(147,180,255,0.35)"; hctx.beginPath();
+      for (const [a, b] of bones) { const A = px(lm[a]), B = px(lm[b]); hctx.moveTo(A[0], A[1]); hctx.lineTo(B[0], B[1]); }
+      hctx.stroke();
+      hctx.strokeStyle = `hsl(${Math.round(target * 300)},90%,65%)`; hctx.lineWidth = 2.5;
+      hctx.beginPath(); hctx.moveTo(tx, ty); hctx.lineTo(ix, iy); hctx.stroke();
+      hctx.fillStyle = "#fff"; hctx.beginPath(); hctx.arc(tx, ty, 4, 0, TAU); hctx.fill(); hctx.beginPath(); hctx.arc(ix, iy, 4, 0, TAU); hctx.fill();
+    } else if (t0 - lastSeen > 500) { setStatus("show your hand", "live"); handX *= 0.9; handY *= 0.9; }
+  };
+  if ("requestVideoFrameCallback" in video) { const onF = () => { detect(); video.requestVideoFrameCallback(onF); }; video.requestVideoFrameCallback(onF); }
+  else { let lt = -1; const loop = () => { if (video.currentTime !== lt) { lt = video.currentTime; detect(); } requestAnimationFrame(loop); }; loop(); }
+}
+
+function enableSlider() {
+  gate.classList.add("off"); manual.classList.add("on"); setStatus("manual");
+  slider.addEventListener("input", () => { target = slider.value / 1000; });
+  window.addEventListener("pointermove", (e) => { handX = (e.clientX / innerWidth - 0.5) * 2; handY = (0.5 - e.clientY / innerHeight) * 2; });
+}
+document.getElementById("start").addEventListener("click", async () => {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { gateErr.textContent = "Camera needs a secure page (https or localhost)."; return; }
+  try { await startCamera(); } catch (e) { gateErr.textContent = e.message + " You can still use the slider."; setStatus("camera unavailable", "err"); }
+});
+document.getElementById("skip").addEventListener("click", enableSlider);
+(function idle(now) { if (gate.classList.contains("off")) return; target = 0.05 + Math.sin(now / 1000 * 0.8) * 0.04; requestAnimationFrame(idle); })(0);
+})();
+</script>
+</body>
+</html>
