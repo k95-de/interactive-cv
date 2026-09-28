@@ -194,9 +194,11 @@ window.CV = {
               de: "1D-Simulationsexperte — Fahrzeug-Kühlsysteme" },
       bullets: {
         en: ["Owned the interconnected cooling system end to end — battery, HV components, cabin, refrigerant.",
-             "Documented the simulation methodology now used across the team; mentored new engineers."],
+             "Documented the simulation methodology now used across the team; mentored new engineers.",
+             "Covered hydrogen fuel-cell cooling next to battery-electric and diesel; added pipe insulation to coolant-line models and assessed immersion cooling for a customer-specific project."],
         de: ["Das vernetzte Kühlsystem ganzheitlich verantwortet — Batterie, HV-Komponenten, Kabine, Kältemittel.",
-             "Die heute teamweit genutzte Simulationsmethodik dokumentiert; neue Ingenieure eingearbeitet."]
+             "Die heute teamweit genutzte Simulationsmethodik dokumentiert; neue Ingenieure eingearbeitet.",
+             "Kühlung von Wasserstoff-Brennstoffzellen neben E- und Diesel-Plattformen abgedeckt; Rohrisolierung in die Kühlleitungsmodelle eingebaut und Tauchkühlung (Immersion Cooling) für ein Kundenprojekt bewertet."]
       }
     },
     {
@@ -219,8 +221,8 @@ window.CV = {
     kicker: { en: "The flow continues", de: "Die Strömung geht weiter" },
     line:   { en: "A flow never stops — it finds new paths. Still curious, still building, already tracing the next challenge.",
               de: "Eine Strömung hört nie auf — sie findet neue Wege. Immer neugierig, immer am Bauen, schon auf dem Weg zur nächsten Herausforderung." },
-    location: { en: "German-Egyptian Citizen · Arabic / English / German",
-                de: "Deutsch-ägyptische Staatsangehörigkeit · Arabisch / Englisch / Deutsch" },
+    location: { en: "German-Egyptian Citizen · Arabic native · English fluent · German professional (B2)",
+                de: "Deutsch-ägyptische Staatsangehörigkeit · Arabisch Muttersprache · Englisch fließend · Deutsch B2" },
     email: "kabdelhadi795@gmail.com",
     linkedin: "linkedin.com/in/khaled-de",
     linkedinUrl: "https://www.linkedin.com/in/khaled-de",
