@@ -187,7 +187,7 @@ window.CV = {
     },
     {
       kind: "job", mode: "network", img: "assets/jobs/network.webp", tools: ["GT-SUITE","Variant sub-models","Methodology","Team onboarding"], s: 0.839, t: 0.861,
-      years: "2025–26", dur: { en: "Apr 2025 – Feb 2026 · 11 mos", de: "Apr. 2025 – Feb. 2026 · 11 Monate" },
+      years: "2025–26", dur: { en: "Apr 2025 – Mar 2026 · 1 yr", de: "Apr. 2025 – März 2026 · 1 Jahr" },
       org: "TRATON R&D Germany",
       place: { en: "Nuremberg, Germany", de: "Nürnberg, Deutschland" },
       role: { en: "1D Simulation Expert — Vehicle Cooling Systems",
